@@ -24,24 +24,37 @@ mqtt_password = os.getenv("MQTT_PASSWORD")
 
 
 def process_data(data):
+    tank_name = None
+    tank_description = None
+
+    gateway_uuid = None
+    gateway_name = None
+    gateway_model = None
+    gateway_status = None
+
+    sensor_uuid = None
+    sensor_name = None
+    sensor_model = None
+    sensor_description = None
+    sensor_status = None
+    sensor_type = None
+
     try:
-        repository_name = data.get('Repository')
-        repository_description = data.get('RepositoryDescription')
+        tank_name = 'Reservatório R1'
 
-        gateway_uuid = data.get('Gateway')
-        gateway_name = data.get('GatewayName')
-        gateway_model = data.get('GatewayModel')
-        gateway_status = data.get('GatewayStatus')
+        gateway_uuid = data.get('Origem')
+        gateway_name = data.get('Origem')
+        gateway_model = data.get('Descricao')
+        gateway_status = True
 
-        sensor_uuid = data.get('Sensor')
-        sensor_name = data.get('SensorName')
-        sensor_model = data.get('SensorModel')
-        sensor_description = data.get('SensorDescription')
-        sensor_status = data.get('SensorStatus')
-        sensor_type = data.get('SensorType')
+        sensor_uuid = data.get('Origem')
+        sensor_name = data.get('Descricao')
+        sensor_model = data.get('Descricao')
+        sensor_status = True
+        sensor_type = 1
 
-        raw_data = data.get('SensorData')
-        sensor_datetime = data.get('SensorDataDatetime')
+        raw_data = data.get('Valor')
+        sensor_datetime = data.get('DataHora')
 
         sensor_data = round(float(raw_data), 1) if raw_data is not None else None
 
@@ -49,9 +62,9 @@ def process_data(data):
         created_at_utc = datetime.datetime.now(pytz.timezone('UTC'))
 
         return {
-            'repository': {
-                'name': repository_name,
-                'description': repository_description
+            'tank': {
+                'name': tank_name,
+                'description': tank_description
             },
             'gateway': {
                 'uuid': gateway_uuid,
@@ -86,18 +99,18 @@ def insert_data_into_database(data):
 
     try:
         # Verifica se o repositório existe
-        repository_name = data['repository']['name']
-        db_cursor.execute("SELECT id FROM repositories WHERE name = %s", (repository_name,))
-        repository_result = db_cursor.fetchone()
+        tank_name = data['tank']['name']
+        db_cursor.execute("SELECT id FROM tanks WHERE name = %s", (tank_name,))
+        tank_result = db_cursor.fetchone()
 
-        if repository_result is None:
+        if tank_result is None:
             # Repositório não existe, insere novo repositório
-            db_cursor.execute("INSERT INTO repositories (name, created_at, updated_at) VALUES (%s, %s, %s)",
-                              (repository_name, data['created_at'], data['created_at']))
+            db_cursor.execute("INSERT INTO tanks (name, created_at, updated_at) VALUES (%s, %s, %s)",
+                              (tank_name, data['created_at'], data['created_at']))
             db_conn.commit()
-            repository_id = db_cursor.lastrowid
+            tank_id = db_cursor.lastrowid
         else:
-            repository_id = repository_result[0]
+            tank_id = tank_result[0]
 
         # Verifica se o gateway existe
         gateway_uuid = data['gateway']['uuid']
@@ -109,9 +122,9 @@ def insert_data_into_database(data):
             gateway_name = data['gateway']['name']
             gateway_model = data['gateway']['model']
             gateway_status = data['gateway']['status']
-            db_cursor.execute("INSERT INTO gateways (id, repository_id, name, model, status, created_at, updated_at) "
+            db_cursor.execute("INSERT INTO gateways (id, tank_id, name, model, status, created_at, updated_at) "
                               "VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                              (gateway_uuid, repository_id, gateway_name, gateway_model, gateway_status,
+                              (gateway_uuid, tank_id, gateway_name, gateway_model, gateway_status,
                                data['created_at'], data['created_at']))
             db_conn.commit()
 
@@ -127,7 +140,7 @@ def insert_data_into_database(data):
             sensor_description = data['sensor']['description']
             sensor_status = data['sensor']['status']
             sensor_type = data['sensor']['type']
-            db_cursor.execute("INSERT INTO sensors (id, gateway_uuid, type_id, name, model, description, status, "
+            db_cursor.execute("INSERT INTO sensors (id, gateway_id, type_id, name, model, description, status, "
                               "created_at, updated_at) "
                               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                               (sensor_uuid, gateway_uuid, sensor_type, sensor_name, sensor_model,
@@ -160,6 +173,7 @@ def on_connect(client, userdata, flags, rc):
 
 # Callback responsavel por receber uma mensagem publicada no topico acima
 def on_message(client, userdata, msg):
+    print(msg.topic+" "+str(msg.payload))
     try:
         m_decode = str(msg.payload.decode("utf-8", "ignore"))
         data = json.loads(m_decode)
