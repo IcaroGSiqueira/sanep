@@ -56,7 +56,7 @@ def process_data(data):
             sensor_uuid = data['sensors']['uuid']
             sensor_name = data['sensors']['name']
             sensor_description = data['sensors']['description']
-            sensor_status = data['sensors']['status'] == 'true' ? True : False
+            sensor_status = True if data['sensors']['status'] == 'true' else False
             sensor_type = data['sensors']['type']
 
         elif data_type == 'log':
