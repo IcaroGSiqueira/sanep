@@ -111,10 +111,12 @@ def insert_data_into_database(data):
         db_cursor.execute("SELECT id FROM tanks WHERE name = %s", (tank_name,))
         tank_result = db_cursor.fetchone()
 
+        created_at = data['created_at']
+
         if tank_result is None:
             # Repositório não existe, insere novo repositório
             db_cursor.execute("INSERT INTO tanks (name, created_at, updated_at) VALUES (%s, %s, %s)",
-                              (tank_name, data['created_at'], data['created_at']))
+                              (tank_name, created_at, created_at))
             db_conn.commit()
             tank_id = db_cursor.lastrowid
         else:
@@ -122,6 +124,7 @@ def insert_data_into_database(data):
 
         # Verifica o tipo de coleta
         data_type = data['type']
+
         if data_type == 'configuration':
             # Verifica se o gateway existe
             gateway_uuid = data['gateway']['uuid']
@@ -135,8 +138,16 @@ def insert_data_into_database(data):
                 gateway_status = data['gateway']['status']
                 db_cursor.execute("INSERT INTO gateways (id, tank_id, name, model, status, created_at, updated_at) "
                                   "VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                                  (gateway_uuid, tank_id, gateway_name, gateway_model, gateway_status,
-                                   data['created_at'], data['created_at']))
+                                  (
+                                    gateway_uuid,
+                                    tank_id,
+                                    gateway_name,
+                                    gateway_model,
+                                    gateway_status,
+                                    created_at,
+                                    created_at
+                                    )
+                                  )
                 db_conn.commit()
 
             # Verifica se o sensor existe
@@ -151,12 +162,22 @@ def insert_data_into_database(data):
                 sensor_description = data['sensor']['description']
                 sensor_status = data['sensor']['status']
                 sensor_type = data['sensor']['type']
-                db_cursor.execute("INSERT INTO sensors (id, gateway_id, type_id, name, model, description, status, "
-                                  "created_at, updated_at) "
-                                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                  (sensor_uuid, gateway_uuid, sensor_type, sensor_name, sensor_model,
-                                   sensor_description, sensor_status, data['created_at'],
-                                   data['created_at']))
+                db_cursor.execute("INSERT INTO sensors "
+                    "(id, gateway_id, type_id, name, model, description, status, created_at, updated_at) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    (
+                        sensor_uuid,
+                        gateway_uuid,
+                        sensor_type,
+                        sensor_name,
+                        sensor_model,
+                        sensor_description,
+                        sensor_status,
+                        created_at,
+                        created_at
+                        )
+                    )
+
                 db_conn.commit()
             else:
                 # Sensor existe, atualiza os seus dados
@@ -166,18 +187,28 @@ def insert_data_into_database(data):
                 sensor_status = data['sensor']['status']
                 sensor_type = data['sensor']['type']
                 db_cursor.execute("UPDATE sensors SET "
-                                    "gateway_id = %s, "
-                                    "type_id = %s, "
-                                    "name = %s, "
-                                    "model = %s, "
-                                    "description = %s, "
-                                    "status = %s, "
-                                    "created_at = %s, "
-                                    "updated_at = %s "
-                                    "WHERE id = %s",
-                                  (gateway_uuid, sensor_type, sensor_name, sensor_model,
-                                   sensor_description, sensor_status, data['created_at'],
-                                   data['created_at'], sensor_uuid))
+                    "gateway_id = %s, "
+                    "type_id = %s, "
+                    "name = %s, "
+                    "model = %s, "
+                    "description = %s, "
+                    "status = %s, "
+                    "created_at = %s, "
+                    "updated_at = %s "
+                    "WHERE id = %s",
+                    (
+                        gateway_uuid,
+                        sensor_type,
+                        sensor_name,
+                        sensor_model,
+                        sensor_description,
+                        sensor_status,
+                        created_at,
+                        created_at,
+                        sensor_uuid
+                        )
+                    )
+
                 db_conn.commit()
 
         elif data_type == 'collect':
@@ -193,18 +224,35 @@ def insert_data_into_database(data):
                 sensor_description = data['sensor']['description']
                 sensor_status = data['sensor']['status']
                 sensor_type = data['sensor']['type']
-                db_cursor.execute("INSERT INTO sensors (id, type_id, name, model, description, status, "
-                                  "created_at, updated_at) "
-                                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                                  (sensor_uuid, sensor_type, sensor_name, sensor_model,
-                                   sensor_description, sensor_status, data['created_at'],
-                                   data['created_at']))
+                db_cursor.execute("INSERT INTO sensors "
+                    "(id, type_id, name, model, description, status, created_at, updated_at) "
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (
+                        sensor_uuid,
+                        sensor_type,
+                        sensor_name,
+                        sensor_model,
+                        sensor_description,
+                        sensor_status,
+                        created_at,
+                        created_at
+                        )
+                    )
+
                 db_conn.commit()
+
+            value = data['sensor_data']['data']
+            value_date = data['sensor_data']['date_time']
 
             # Insere os dados do sensor
             db_cursor.execute("INSERT INTO sensor_data (sensor_id, data, created_at) "
                               "VALUES (%s, %s, %s)",
-                              (sensor_uuid, data['sensor_data']['data'], data['created_at']))
+                              (
+                                sensor_uuid,
+                                value,
+                                value_date
+                                )
+                              )
             db_conn.commit()
 
     except Exception as err:
