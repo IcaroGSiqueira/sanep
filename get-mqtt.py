@@ -63,7 +63,7 @@ def process_data(data):
             gateway_uuid = data.get('uuid_gateway')
             raw_data = data.get('data')
 
-        datetime = data.get('date')
+        data_datetime = data.get('date')
 
         sensor_data = round(float(raw_data), 1) if raw_data is not None else None
 
@@ -91,7 +91,7 @@ def process_data(data):
             },
             'sensor_data': {
                 'data': sensor_data,
-                'date_time': sensor_datetime,
+                'date_time': data_datetime,
             },
             'created_at': created_at,
         }
@@ -121,6 +121,7 @@ def insert_data_into_database(data):
             tank_id = tank_result[0]
 
 
+        print(data)
 
         # Verifica o tipo de coleta
         data_type = data['type']
