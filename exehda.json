@@ -1,0 +1,119 @@
+[
+    {
+        "date": "2023-9-5 21:0:9",
+        "type": "collect",
+        "uuid_sensor": "d4a680e2-8918-40fc-820b-867ca99dae38",
+        "data": 21.1875
+    },
+    {
+        "date": "2023-9-5 21:0:9",
+        "type": "collect",
+        "uuid_sensor": "12876483-61fe-4089-8d51-3059fd89631b",
+        "data": 21.3125
+    },
+    {
+        "date": "2023-9-5 21:6:44",
+        "type": "log",
+        "data": "Except thread_sub: -1",
+        "uuid_gateway": "5aa027bd-4afc-461c-b353-c2535008f4ce"
+    },
+    {
+        "gateway": {
+            "name": "GW-sanep-AY-OTA-WM",
+            "uuid": "5aa027bd-4afc-461c-b353-c2535008f4ce"
+        },
+        "sensors": [
+            {
+                "uuid": "d4a680e2-8918-40fc-820b-867ca99dae38",
+                "status": "true",
+                "pin": [
+                    19
+                ],
+                "name": "sensor_temp_agua_reservatorio",
+                "collect_time": [
+                    "/10 * *"
+                ],
+                "type": 1,
+                "description": "Temperatura Agua Reservatorio",
+                "driver": "driver_temp"
+            },
+            {
+                "uuid": "12876483-61fe-4089-8d51-3059fd89631b",
+                "status": "true",
+                "pin": [
+                    21
+                ],
+                "name": "\tsensor_temp_amb_reservatorio",
+                "collect_time": [
+                    "/10 * *"
+                ],
+                "type": 1,
+                "description": "Temperatura Ambiente Reservatorio",
+                "driver": "driver_temp"
+            },
+            {
+                "uuid": "a08042cf-8610-4bd4-8bea-6320ce7c613b",
+                "status": "false",
+                "pin": [
+                    10
+                ],
+                "name": "Memoria_Livre",
+                "collect_time": [
+                    "/10 6-18 *",
+                    "/15 19-5 *"
+                ],
+                "type": 5,
+                "description": "sensor de memoria livre",
+                "driver": "driver_memoria_livre"
+            },
+            {
+                "uuid": "a193dd2b-dac9-4b97-9d63-d9d48ceb45bc",
+                "status": "false",
+                "pin": [
+                    10
+                ],
+                "name": "gw-uptime",
+                "collect_time": [
+                    "* * *"
+                ],
+                "type": 5,
+                "description": "sensor de hora que ligou",
+                "driver": "driver_time"
+            },
+            {
+                "uuid": "1445df0b-ad19-45c7-9f35-12882c42bc0e",
+                "status": "false",
+                "pin": [
+                    1
+                ],
+                "name": "gw-reset",
+                "collect_time": [
+                    "* * *"
+                ],
+                "type": 6,
+                "description": "Reset",
+                "driver": "reset"
+            },
+            {
+                "uuid": "ba1c5cb1-ca29-4ddd-8f1b-243e07b5f129",
+                "status": "false",
+                "pin": [
+                    18
+                ],
+                "name": "atuador_gpio",
+                "collect_time": [
+                    "* 15-16 *"
+                ],
+                "type": 6,
+                "description": "Atuador GPIO",
+                "driver": "driver_gpio"
+            }
+        ],
+        "git": {
+            "url": "https://github.com/exehdamiddleware/gateway_sanep/",
+            "token": "eacfe3189eabc443664ac7c74658c77c48931a10"
+        },
+        "date": "2023-9-5 21:3:42",
+        "type": "configuration"
+    }
+]
