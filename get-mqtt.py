@@ -219,21 +219,13 @@ def insert_data_into_database(data):
 
             if sensor_result is None:
                 # Sensor não existe, insere novo sensor
-                sensor_name = data['sensor']['name']
-                sensor_model = data['sensor']['model']
-                sensor_description = data['sensor']['description']
-                sensor_status = data['sensor']['status']
-                sensor_type = data['sensor']['type']
+                sensor_name = 'temporary_name_' + sensor_uuid
                 db_cursor.execute("INSERT INTO sensors "
-                    "(id, type_id, name, model, description, status, created_at, updated_at) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    "(id, name, created_at, updated_at) "
+                    "VALUES (%s, %s, %s, %s)",
                     (
                         sensor_uuid,
-                        sensor_type,
                         sensor_name,
-                        sensor_model,
-                        sensor_description,
-                        sensor_status,
                         created_at,
                         created_at
                         )
