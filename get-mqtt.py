@@ -120,9 +120,6 @@ def insert_data_into_database(data):
         else:
             tank_id = tank_result[0]
 
-
-        print(data)
-
         # Verifica o tipo de coleta
         data_type = data['type']
         if data_type == 'configuration':
