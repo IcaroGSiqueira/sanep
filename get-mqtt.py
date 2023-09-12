@@ -48,7 +48,7 @@ def process_data(data):
             sensor_uuid = data.get('uuid_sensor')
             raw_data = data.get('data')
 
-        else if data_type == 'configuration':
+        elif data_type == 'configuration':
             gateway_uuid = data['gateway']['uuid']
             gateway_name = data['gateway']['name']
             gateway_status = True
@@ -59,7 +59,7 @@ def process_data(data):
             sensor_status = data['sensors']['status'] == 'true' ? True : False
             sensor_type = data['sensors']['type']
 
-        else if data_type == 'log':
+        elif data_type == 'log':
             gateway_uuid = data.get('uuid_gateway')
             raw_data = data.get('data')
 
@@ -182,7 +182,7 @@ def insert_data_into_database(data):
                                    data['created_at'], sensor_uuid))
                 db_conn.commit()
 
-        else if data_type == 'collect':
+        elif data_type == 'collect':
             # Verifica se o sensor existe
             sensor_uuid = data['sensor']['uuid']
             db_cursor.execute("SELECT id FROM sensors WHERE id = %s", (sensor_uuid,))
