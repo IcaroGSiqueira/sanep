@@ -205,10 +205,9 @@ def insert_data_into_database(data):
                 db_conn.commit()
 
             # Insere os dados do sensor
-            db_cursor.execute("INSERT INTO sensor_data (sensor_id, data, created_at_utc, created_at) "
+            db_cursor.execute("INSERT INTO sensor_data (sensor_id, data, created_at) "
                               "VALUES (%s, %s, %s, %s)",
-                              (sensor_uuid, data['sensor_data']['data'], data['created_at_utc'],
-                               data['created_at']))
+                              (sensor_uuid, data['sensor_data']['data'], data['created_at']))
             db_conn.commit()
 
     except Exception as err:
