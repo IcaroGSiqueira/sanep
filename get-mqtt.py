@@ -196,18 +196,18 @@ def insert_data_into_database(data):
                 sensor_description = data['sensor']['description']
                 sensor_status = data['sensor']['status']
                 sensor_type = data['sensor']['type']
-                db_cursor.execute("INSERT INTO sensors (id, gateway_id, type_id, name, model, description, status, "
+                db_cursor.execute("INSERT INTO sensors (id, type_id, name, model, description, status, "
                                   "created_at, updated_at) "
-                                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                  (sensor_uuid, gateway_uuid, sensor_type, sensor_name, sensor_model,
+                                  "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                                  (sensor_uuid, sensor_type, sensor_name, sensor_model,
                                    sensor_description, sensor_status, data['created_at'],
                                    data['created_at']))
                 db_conn.commit()
 
             # Insere os dados do sensor
             db_cursor.execute("INSERT INTO sensor_data (sensor_id, data, created_at) "
-                              "VALUES (%s, %s, %s, %s)",
-                              (sensor_uuid, data['sensor_data']['data'], data['created_at']))
+                              "VALUES (%s, %s, %s)",
+                              (sensor_uuid, data['sensor_data']['data']))
             db_conn.commit()
 
     except Exception as err:
