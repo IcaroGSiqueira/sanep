@@ -33,11 +33,8 @@ def process_data(data):
     gateway_status = None
 
     sensor_uuid = None
-    sensor_name = None
-    sensor_model = None
-    sensor_description = None
-    sensor_status = None
-    sensor_type = None
+
+    sensors = []
 
     try:
         tank_name = 'Reservatório R1'
@@ -53,11 +50,7 @@ def process_data(data):
             gateway_name = data['gateway']['name']
             gateway_status = True
 
-            sensor_uuid = data['sensors']['uuid']
-            sensor_name = data['sensors']['name']
-            sensor_description = data['sensors']['description']
-            sensor_status = True if data['sensors']['status'] == 'true' else False
-            sensor_type = data['sensors']['type']
+            sensors = data['sensors']
 
         elif data_type == 'log':
             gateway_uuid = data.get('uuid_gateway')
@@ -81,15 +74,9 @@ def process_data(data):
                 'model': gateway_model,
                 'status': gateway_status
             },
-            'sensor': {
-                'uuid': sensor_uuid,
-                'name': sensor_name,
-                'model': sensor_model,
-                'description': sensor_description,
-                'status': sensor_status,
-                'type': sensor_type
-            },
+            'sensors': sensors,
             'sensor_data': {
+                'uuid': sensor_uuid,
                 'data': sensor_data,
                 'date_time': data_datetime,
             },
@@ -150,70 +137,67 @@ def insert_data_into_database(data):
                                   )
                 db_conn.commit()
 
-            # Verifica se o sensor existe
-            sensor_uuid = data['sensor']['uuid']
-            db_cursor.execute("SELECT id FROM sensors WHERE id = %s", (sensor_uuid,))
-            sensor_result = db_cursor.fetchone()
+            # Verifica se cada sensor existe
 
-            if sensor_result is None:
-                # Sensor não existe, insere novo sensor
-                sensor_name = data['sensor']['name']
-                sensor_model = data['sensor']['model']
-                sensor_description = data['sensor']['description']
-                sensor_status = data['sensor']['status']
-                sensor_type = data['sensor']['type']
-                db_cursor.execute("INSERT INTO sensors "
-                    "(id, gateway_id, type_id, name, model, description, status, created_at, updated_at) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                    (
-                        sensor_uuid,
-                        gateway_uuid,
-                        sensor_type,
-                        sensor_name,
-                        sensor_model,
-                        sensor_description,
-                        sensor_status,
-                        created_at,
-                        created_at
+            for sensor in data['sensors']:
+                sensor_uuid = sensor['uuid']
+
+                sensor_uuid = data['sensor']['uuid']
+                db_cursor.execute("SELECT id FROM sensors WHERE id = %s", (sensor_uuid,))
+                sensor_result = db_cursor.fetchone()
+
+                sensor_name = sensor['name']
+                sensor_description = sensor['description']
+                sensor_status = True if sensor['status'] == 'true' else False
+                sensor_type = sensor['type']
+
+                if sensor_result is None:
+                    # Sensor não existe, insere novo sensor
+
+                    db_cursor.execute("INSERT INTO sensors "
+                        "(id, gateway_id, type_id, name, description, status, created_at, updated_at) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                        (
+                            sensor_uuid,
+                            gateway_uuid,
+                            sensor_type,
+                            sensor_name,
+                            sensor_description,
+                            sensor_status,
+                            created_at,
+                            created_at
+                            )
                         )
-                    )
 
-                db_conn.commit()
-            else:
-                # Sensor existe, atualiza os seus dados
-                sensor_name = data['sensor']['name']
-                sensor_model = data['sensor']['model']
-                sensor_description = data['sensor']['description']
-                sensor_status = data['sensor']['status']
-                sensor_type = data['sensor']['type']
-                db_cursor.execute("UPDATE sensors SET "
-                    "gateway_id = %s, "
-                    "type_id = %s, "
-                    "name = %s, "
-                    "model = %s, "
-                    "description = %s, "
-                    "status = %s, "
-                    "created_at = %s, "
-                    "updated_at = %s "
-                    "WHERE id = %s",
-                    (
-                        gateway_uuid,
-                        sensor_type,
-                        sensor_name,
-                        sensor_model,
-                        sensor_description,
-                        sensor_status,
-                        created_at,
-                        created_at,
-                        sensor_uuid
+                    db_conn.commit()
+                else:
+                    # Sensor existe, atualiza os seus dados
+                    db_cursor.execute("UPDATE sensors SET "
+                        "gateway_id = %s, "
+                        "type_id = %s, "
+                        "name = %s, "
+                        "description = %s, "
+                        "status = %s, "
+                        "created_at = %s, "
+                        "updated_at = %s "
+                        "WHERE id = %s",
+                        (
+                            gateway_uuid,
+                            sensor_type,
+                            sensor_name,
+                            sensor_description,
+                            sensor_status,
+                            created_at,
+                            created_at,
+                            sensor_uuid
+                            )
                         )
-                    )
 
-                db_conn.commit()
+                    db_conn.commit()
 
         elif data_type == 'collect':
             # Verifica se o sensor existe
-            sensor_uuid = data['sensor']['uuid']
+            sensor_uuid = data['sensor_data']['uuid']
             db_cursor.execute("SELECT id FROM sensors WHERE id = %s", (sensor_uuid,))
             sensor_result = db_cursor.fetchone()
 
