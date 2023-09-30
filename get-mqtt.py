@@ -48,7 +48,6 @@ def process_data(data):
         created_at = datetime.datetime.now()
 
         return {
-            'type': data_type,
             'tank': {
                 'name': tank_name,
                 'description': tank_description
