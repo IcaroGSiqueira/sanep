@@ -34,20 +34,18 @@ def process_data(data):
 
     sensor_uuid = None
 
-    sensors = []
+    devices = []
 
     try:
         tank_name = 'Barragem'
 
         data_type = data.get('type')
 
-        devices = data['devices']
-
         if data_type == 'publication':
             sensor_uuid = data.get('uuid_sensor')
             raw_data = data.get('data')
 
-        if length(devices) > 0:
+        if 1 > 2:
             gateway_uuid = data['gateway']['uuid']
             gateway_name = data['gateway']['name']
             gateway_status = True
@@ -112,9 +110,8 @@ def insert_data_into_database(data):
 
         # Verifica o tipo de coleta
         data_type = data['type']
-        devices = data['devices']
 
-        if length(devices) > 0:
+        if 1 > 2:
             # Verifica se o gateway existe
             gateway_uuid = data['gateway']['uuid']
             db_cursor.execute("SELECT id FROM gateways WHERE id = %s", (gateway_uuid,))
@@ -139,16 +136,16 @@ def insert_data_into_database(data):
 
             # Verifica se cada sensor existe
 
-            for sensor in data['devices']:
+            for device in devices:
                 sensor_uuid = sensor['uuid']
 
                 sensor_uuid = data['sensor']['uuid']
                 db_cursor.execute("SELECT id FROM sensors WHERE id = %s", (sensor_uuid,))
                 sensor_result = db_cursor.fetchone()
 
-                sensor_name = sensor['name']
-                sensor_status = True if sensor['status'] == 'true' else False
-                sensor_type = sensor['driver']
+                sensor_name = device['name']
+                sensor_status = True if device['status'] == 'true' else False
+                sensor_type = device['driver']
 
                 drivers = {
                     temperature: 1,
