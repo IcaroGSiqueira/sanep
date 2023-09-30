@@ -42,7 +42,7 @@ def process_data(data):
         raw_data = data.get('data')
         data_datetime = data.get('gathered_at')
 
-        data_hora_obj = datetime.fromisoformat(data_datetime)
+        data_hora_obj = datetime.datetime.fromisoformat(data_datetime)
         data_hora_formatada = data_hora_obj.strftime("%Y-%m-%d %H:%M:%S")
 
         sensor_data = round(float(raw_data), 1) if raw_data is not None else None
