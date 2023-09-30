@@ -114,7 +114,7 @@ def insert_data_into_database(data):
         data_type = data['type']
         devices = data['devices']
 
-        if data_type == 'configuration' || length(devices) > 0:
+        if length(devices) > 0:
             # Verifica se o gateway existe
             gateway_uuid = data['gateway']['uuid']
             db_cursor.execute("SELECT id FROM gateways WHERE id = %s", (gateway_uuid,))
@@ -199,7 +199,7 @@ def insert_data_into_database(data):
 
                     db_conn.commit()
 
-        elif data_type == 'collect' || data_type == 'publication':
+        elif data_type == 'publication':
             # Verifica se o sensor existe
             sensor_uuid = data['sensor_data']['uuid']
             db_cursor.execute("SELECT id FROM sensors WHERE id = %s", (sensor_uuid,))
