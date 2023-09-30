@@ -42,6 +42,9 @@ def process_data(data):
         raw_data = data.get('data')
         data_datetime = data.get('gathered_at')
 
+        data_hora_obj = datetime.fromisoformat(data_datetime)
+        data_hora_formatada = data_hora_obj.strftime("%Y-%m-%d %H:%M:%S")
+
         sensor_data = round(float(raw_data), 1) if raw_data is not None else None
 
         created_at = datetime.datetime.now()
@@ -60,7 +63,7 @@ def process_data(data):
             'sensor_data': {
                 'uuid': sensor_uuid,
                 'data': sensor_data,
-                'date_time': data_datetime,
+                'date_time': data_hora_formatada,
             },
             'created_at': created_at,
         }
