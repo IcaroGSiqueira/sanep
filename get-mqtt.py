@@ -37,26 +37,28 @@ def process_data(data):
     sensors = []
 
     try:
-        tank_name = 'Reservatório R1'
+        tank_name = 'Barragem'
 
         data_type = data.get('type')
 
-        if data_type == 'collect':
+        devices = data['devices']
+
+        if data_type == 'publication':
             sensor_uuid = data.get('uuid_sensor')
             raw_data = data.get('data')
 
-        elif data_type == 'configuration':
+        if length(devices) > 0:
             gateway_uuid = data['gateway']['uuid']
             gateway_name = data['gateway']['name']
             gateway_status = True
 
-            sensors = data['sensors']
+            devices = data['devices']
 
         elif data_type == 'log':
             gateway_uuid = data.get('uuid_gateway')
             raw_data = data.get('data')
 
-        data_datetime = data.get('date')
+        data_datetime = data.get('gathered_at')
 
         sensor_data = round(float(raw_data), 1) if raw_data is not None else None
 
@@ -71,10 +73,9 @@ def process_data(data):
             'gateway': {
                 'uuid': gateway_uuid,
                 'name': gateway_name,
-                'model': gateway_model,
                 'status': gateway_status
             },
-            'sensors': sensors,
+            'devices': devices,
             'sensor_data': {
                 'uuid': sensor_uuid,
                 'data': sensor_data,
@@ -111,8 +112,9 @@ def insert_data_into_database(data):
 
         # Verifica o tipo de coleta
         data_type = data['type']
+        devices = data['devices']
 
-        if data_type == 'configuration':
+        if data_type == 'configuration' || length(devices) > 0:
             # Verifica se o gateway existe
             gateway_uuid = data['gateway']['uuid']
             db_cursor.execute("SELECT id FROM gateways WHERE id = %s", (gateway_uuid,))
@@ -121,15 +123,13 @@ def insert_data_into_database(data):
             if gateway_result is None:
                 # Gateway não existe, insere novo gateway
                 gateway_name = data['gateway']['name']
-                gateway_model = data['gateway']['model']
                 gateway_status = data['gateway']['status']
-                db_cursor.execute("INSERT INTO gateways (id, tank_id, name, model, status, created_at, updated_at) "
+                db_cursor.execute("INSERT INTO gateways (id, tank_id, name, status, created_at, updated_at) "
                                   "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                                   (
                                     gateway_uuid,
                                     tank_id,
                                     gateway_name,
-                                    gateway_model,
                                     gateway_status,
                                     created_at,
                                     created_at
@@ -139,7 +139,7 @@ def insert_data_into_database(data):
 
             # Verifica se cada sensor existe
 
-            for sensor in data['sensors']:
+            for sensor in data['devices']:
                 sensor_uuid = sensor['uuid']
 
                 sensor_uuid = data['sensor']['uuid']
@@ -147,22 +147,26 @@ def insert_data_into_database(data):
                 sensor_result = db_cursor.fetchone()
 
                 sensor_name = sensor['name']
-                sensor_description = sensor['description']
                 sensor_status = True if sensor['status'] == 'true' else False
-                sensor_type = sensor['type']
+                sensor_type = sensor['driver']
+
+                drivers = {
+                    temperature: 1,
+                    humidity: 2,
+                    wind: 6
+                }
 
                 if sensor_result is None:
                     # Sensor não existe, insere novo sensor
 
                     db_cursor.execute("INSERT INTO sensors "
-                        "(id, gateway_id, type_id, name, description, status, created_at, updated_at) "
-                        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                        "(id, gateway_id, type_id, name, status, created_at, updated_at) "
+                        "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                         (
                             sensor_uuid,
                             gateway_uuid,
                             sensor_type,
                             sensor_name,
-                            sensor_description,
                             sensor_status,
                             created_at,
                             created_at
@@ -195,7 +199,7 @@ def insert_data_into_database(data):
 
                     db_conn.commit()
 
-        elif data_type == 'collect':
+        elif data_type == 'collect' || data_type == 'publication':
             # Verifica se o sensor existe
             sensor_uuid = data['sensor_data']['uuid']
             db_cursor.execute("SELECT id FROM sensors WHERE id = %s", (sensor_uuid,))

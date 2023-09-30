@@ -1,0 +1,27 @@
+{
+    "gathered_at": "2023-5-19T12:20:0.4Z",
+    "data": "0.0",
+    "tries": 1,
+    "gateway": {
+        "uuid": "935f2bbb-8b86-4a41-a434-c7022b3ec865"
+    },
+    "uuid": "91094aed-14df-4671-8af9-f40dd1480fed",
+    "type": "publication"
+}
+{
+    "gathered_at": "2023-5-19T12:20:0.4Z",
+    "data": "22.5625",
+    "tries": 1,
+    "gateway": {
+        "uuid": "935f2bbb-8b86-4a41-a434-c7022b3ec865"
+    },
+    "uuid": "2d0ffdf5-928d-4439-85a0-0351b8b7eadc",
+    "type": "publication"
+}
+
+{
+    "date": "2023-9-7 5:20:6",
+    "type": "collect",
+    "uuid_sensor": "d4a680e2-8918-40fc-820b-867ca99dae38",
+    "data": 20.0
+}
