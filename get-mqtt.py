@@ -38,8 +38,7 @@ def process_data(data):
     try:
         tank_name = 'Barragem'
 
-
-        sensor_uuid = data.get('uuid_sensor')
+        sensor_uuid = data.get('uuid')
         raw_data = data.get('data')
         data_datetime = data.get('gathered_at')
 
