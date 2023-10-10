@@ -161,7 +161,6 @@ def insert_config_data(data, db_cursor):
     for sensor in data['devices']:
         sensor_uuid = sensor.get('uuid')
 
-        sensor_uuid = data.get('sensor').get('uuid')
         db_cursor.execute("SELECT id FROM sensors WHERE id = %s", (sensor_uuid,))
         sensor_result = db_cursor.fetchone()
 
@@ -170,26 +169,27 @@ def insert_config_data(data, db_cursor):
         sensor_type = sensor.get('driver')
 
         sensor_types = {
-            'temperature': 1
-            'humidity': 2
-            'conductivity': 3
-            'ph': 4
-            'pressure': 5
-            'wind': 6
+            'temperature': 1,
+            'humidity': 2,
+            'conductivity': 3,
+            'ph': 4,
+            'pressure': 5,
+            'wind': 6,
         }
 
-        if sensor_result is None:
+        type_id = sensor_types.get(sensor_type, None)
+
+        if sensor_result is None and type_id is not None:
             # Sensor não existe, insere novo sensor
 
             db_cursor.execute("INSERT INTO sensors "
-                "(id, gateway_id, type_id, name, description, status, created_at, updated_at) "
-                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                "(id, gateway_id, type_id, name, status, created_at, updated_at) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                 (
                     sensor_uuid,
                     gateway_uuid,
-                    sensor_types[sensor_type],
+                    type_id,
                     sensor_name,
-                    sensor_description,
                     sensor_status,
                     created_at,
                     created_at
@@ -197,22 +197,20 @@ def insert_config_data(data, db_cursor):
                 )
 
             db_conn.commit()
-        else:
+        elif type_id is not None:
             # Sensor existe, atualiza os seus dados
             db_cursor.execute("UPDATE sensors SET "
                 "gateway_id = %s, "
                 "type_id = %s, "
                 "name = %s, "
-                "description = %s, "
                 "status = %s, "
                 "created_at = %s, "
                 "updated_at = %s "
                 "WHERE id = %s",
                 (
                     gateway_uuid,
-                    sensor_type,
+                    type_id,
                     sensor_name,
-                    sensor_description,
                     sensor_status,
                     created_at,
                     created_at,

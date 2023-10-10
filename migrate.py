@@ -85,7 +85,7 @@ db_cursor.execute("""
         id INT AUTO_INCREMENT PRIMARY KEY,
         sensor_id VARCHAR(36),
         type_id INT,
-        condition TINYTEXT,
+        ´condition´ TINYTEXT,
         value FLOAT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
