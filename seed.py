@@ -27,6 +27,7 @@ else:
         ("conductivity", "Electric Conductivity", "uS/cm"),
         ("ph", "Water pH", "ph"),
         ("pressure", "Water Level", "m3"),
+        ("wind", "Wind Velocity", "km/h"),
     ]
 
     # Add sensor types to the table

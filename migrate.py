@@ -74,9 +74,35 @@ db_cursor.execute("""
         id INT AUTO_INCREMENT PRIMARY KEY,
         sensor_id VARCHAR(36),
         data TEXT,
-        created_at_utc TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (sensor_id) REFERENCES sensors (id) ON DELETE CASCADE
+    )
+""")
+
+# Create the 'rules' table
+db_cursor.execute("""
+    CREATE TABLE IF NOT EXISTS rules (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        sensor_id VARCHAR(36),
+        type_id INT,
+        condition TINYTEXT,
+        value FLOAT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (sensor_id) REFERENCES sensors (id) ON DELETE CASCADE,
+        FOREIGN KEY (type_id) REFERENCES sensor_types (id) ON DELETE CASCADE
+    )
+""")
+
+# Create the 'logs' table
+db_cursor.execute("""
+    CREATE TABLE IF NOT EXISTS logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        gateway_id VARCHAR(36),
+        message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (gateway_id) REFERENCES gateways (id) ON DELETE CASCADE
     )
 """)
 
