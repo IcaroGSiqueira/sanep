@@ -106,5 +106,16 @@ db_cursor.execute("""
     )
 """)
 
+# Create the 'telegram_users' table
+db_cursor.execute("""
+    CREATE TABLE IF NOT EXISTS telegram_users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        code INT,
+        active BOOLEAN DEFAULT True,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+""")
+
+
 db_conn.commit()
 db_conn.close()

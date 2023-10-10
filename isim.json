@@ -6,12 +6,6 @@
         "data": 21.1875
     },
     {
-        "date": "2023-9-5 21:0:9",
-        "type": "collect",
-        "uuid_sensor": "12876483-61fe-4089-8d51-3059fd89631b",
-        "data": 21.3125
-    },
-    {
         "date": "2023-9-5 21:6:44",
         "type": "log",
         "data": "Except thread_sub: -1",
