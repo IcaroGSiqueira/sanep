@@ -30,7 +30,7 @@ except subprocess.CalledProcessError as e:
 # Run main script
 print("Starting main script...")
 try:
-    subprocess.check_call(['python3', 'get-mqtt.py'])
+    subprocess.Popen(['python3', 'get-mqtt.py'])
 except subprocess.CalledProcessError as e:
     print("Main script execution failed. Aborting.")
     print(e)
@@ -39,7 +39,7 @@ except subprocess.CalledProcessError as e:
 # Run alert bot scripts
 print("Starting bot script...")
 try:
-    subprocess.check_call(['python3', 'alert-bot.py'])
+    subprocess.Popen(['python3', 'alert-bot.py'])
 except subprocess.CalledProcessError as e:
     print("Bot script execution failed. Aborting.")
     print(e)
