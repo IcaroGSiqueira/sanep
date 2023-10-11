@@ -6,6 +6,7 @@ try:
     subprocess.check_call(['python3', 'dependencies-check.py'])
 except subprocess.CalledProcessError as e:
     print("Dependency check failed. Aborting.")
+    print(e)
     exit(1)
 
 # Migrate database
@@ -14,6 +15,7 @@ try:
     subprocess.check_call(['python3', 'migrate.py'])
 except subprocess.CalledProcessError as e:
     print("Migration failed. Aborting.")
+    print(e)
     exit(1)
 
 # Seed data
@@ -22,6 +24,7 @@ try:
     subprocess.check_call(['python3', 'seed.py'])
 except subprocess.CalledProcessError as e:
     print("Data seeding failed. Aborting.")
+    print(e)
     exit(1)
 
 # Run main script
@@ -30,6 +33,17 @@ try:
     subprocess.check_call(['python3', 'get-mqtt.py'])
 except subprocess.CalledProcessError as e:
     print("Main script execution failed. Aborting.")
+    print(e)
     exit(1)
+
+# Run alert bot scripts
+print("Starting bot script...")
+try:
+    subprocess.check_call(['python3', 'alert-bot.py'])
+except subprocess.CalledProcessError as e:
+    print("Bot script execution failed. Aborting.")
+    print(e)
+    exit(1)
+
 
 print("All scripts executed successfully.")
