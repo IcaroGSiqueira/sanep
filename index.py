@@ -27,13 +27,4 @@ except subprocess.CalledProcessError as e:
     print(e)
     exit(1)
 
-# Run main script
-print("Starting main script...")
-try:
-    subprocess.check_call(['sh', 'start-iwater.sh'])
-except subprocess.CalledProcessError as e:
-    print("Main script execution failed. Aborting.")
-    print(e)
-    exit(1)
-
 print("All scripts executed successfully.")
