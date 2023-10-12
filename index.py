@@ -30,7 +30,7 @@ except subprocess.CalledProcessError as e:
 # Run main script
 print("Starting main script...")
 try:
-    subprocess.check_call(['pm2', 'start', 'pm2.config.js', '--interpreter=python3', '--watch'])
+    subprocess.check_call(['sh', 'start-iwater.sh'])
 except subprocess.CalledProcessError as e:
     print("Main script execution failed. Aborting.")
     print(e)
