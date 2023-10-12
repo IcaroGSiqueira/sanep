@@ -44,6 +44,7 @@ def connect_database():
 # Estados da Conversa
 SENSOR, CONDICAO, VALOR = range(3)
 EXCLUIR_ALERTA = range(1)
+ESCOLHA_AMBIENTE, BARRAGEM, RESERVATORIOS = range(3)
 
 ######################################################################################################################################
 
@@ -92,12 +93,32 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # chat_id: identificador único para o chat ou destinatário no qual deseja-se enviar a mensagem.
         # update.effective_chat.id é usado para obter o ID do chat e 
         # normalmente representa o chat que desencadeou a atualização ou mensagem atual no bot.
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Olá, {user.first_name}! Bem-vindo ao bot. Escolha o que deseja fazer:\n\n/0 - Visualizar a última coleta de dados\n/1 - Criar alerta\n/2 - Visualizar alertas\n/3 - Excluir alerta")
+        '''await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Olá, {user.first_name}! Bem-vindo ao bot. Escolha o que deseja fazer:\n\n/0 - Visualizar a última coleta de dados\n/1 - Criar alerta\n/2 - Visualizar alertas\n/3 - Excluir alerta")'''
+
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Olá, {user.first_name}! Bem-vindo ao bot. Escolha um ambiente para continuar:\n\n/1 - Barragem\n/2 - Reservatórios")
+        return ESCOLHA_AMBIENTE
 
     except Exception as e:
         logger.error(f"\nErro ao obter dados do MySQL: {e}\n")
         #return "Erro ao obter dados do MySQL."
 
+
+async def escolha_ambiente(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_choice = update.message.text
+
+    if user_choice == '/1':
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Escolha o que deseja fazer entre os comandos relacionados à Barragem:\n\n/A - Visualizar a última coleta de dados\n/B - Criar alerta\n/C - Visualizar alertas\n/D - Excluir alerta\n/Z - Voltar para o Menu")
+        return BARRAGEM
+
+    elif user_choice == '/2':
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Escolha o que deseja fazer entre os comandos relacionados aos Reservatórios:\n\n/A - Visualizar a última coleta de dados\n/B - Criar alerta\n/C - Visualizar alertas\n/D - Excluir alerta\n/Z - Voltar para o Menu")
+        return RESERVATORIOS
+
+    else:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Escolha inválida.")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="Escolha um ambiente para continuar:\n\n/1 - Barragem\n/2 - Reservatórios")
+        return ESCOLHA_AMBIENTE
+
 ######################################################################################################################################
 
 
@@ -105,7 +126,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 ######################################################################################################################################
 
-async def barra0(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def voltar(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Escolha um ambiente para continuar:\n\n/1 - Barragem\n/2 - Reservatórios")
+    return ESCOLHA_AMBIENTE
+
+######################################################################################################################################
+
+
+
+
+######################################################################################################################################
+
+async def barraA(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Estabelece uma conexão com o servidor MySQL
         conn = connect_database()
@@ -195,7 +227,7 @@ def salva_regra(sensor_sem_barra, condicao_sem_barra, valor_sem_barra):
         conn.close()
 
 
-async def barra1(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def barraB(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Adicionar alerta para qual sensor?\n\n/TEMPERATURA\n/UMIDADE\n/VENTO")
     return SENSOR
 
@@ -309,7 +341,7 @@ def save_dataframe_as_pdf(df, pdf_filename, title):
     doc.build(elements)
 
 
-async def barra2(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def barraC(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Estabelece uma conexão com o servidor MySQL
         conn = connect_database()
@@ -370,7 +402,7 @@ async def barra2(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 ######################################################################################################################################
 
-async def barra3(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def barraD(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Digite o ID do alerta que deseja excluir.\nPor exemplo: /23.")
     return EXCLUIR_ALERTA
 
@@ -561,28 +593,53 @@ if __name__ == '__main__':
     # Adicionando o comando "/start"
     # Registra um manipulador (handler) para o comando /start.
     # CommandHandler("start", start) especifica que quando o comando /start for enviado, a função start será chamada para processá-lo.
-    application.add_handler(CommandHandler('start', start))
-    
-    # Adicionando uma opção no Menu
-    # Permite definir manipuladores (handlers) para diferentes tipos de mensagens recebidas pelo Bot.
-    application.add_handler(CommandHandler('0', barra0))
+    '''application.add_handler(CommandHandler('start', start))'''
 
-    # O Filtro significa que o manipulador será acionado apenas quando o bot 
-    # receber mensagens de texto normais dos usuários e também mensagens que sejam comandos de bot.
-    application.add_handler(ConversationHandler(entry_points=[CommandHandler('1', barra1)],
+    criaAlerta = ConversationHandler(entry_points=[CommandHandler('B', barraB)],
                                                 states={SENSOR: [MessageHandler(filters.TEXT & filters.COMMAND, receber_sensor)],
                                                         CONDICAO: [MessageHandler(filters.TEXT & filters.COMMAND, receber_condicao)],
                                                         VALOR: [MessageHandler(filters.TEXT & filters.COMMAND, receber_valor)],},
                                                 fallbacks=[],
-                                                ))
-    
-    application.add_handler(CommandHandler('2', barra2))
-    
-    
-    application.add_handler(ConversationHandler(entry_points=[CommandHandler('3', barra3)],
+                                    )
+
+    excluirAlerta = ConversationHandler(entry_points=[CommandHandler('D', barraD)],
                                                 states={EXCLUIR_ALERTA: [MessageHandler(filters.TEXT & filters.COMMAND, excluir_alerta)],},
                                                 fallbacks=[],
-                                                ))
+                                       )
+
+    application.add_handler(ConversationHandler(entry_points=[CommandHandler('start', start)],
+                                                states={
+                                                        ESCOLHA_AMBIENTE: [MessageHandler(filters.TEXT or filters.COMMAND, escolha_ambiente)],
+                                                        BARRAGEM: [CommandHandler('A', barraA),
+                                                                   criaAlerta,
+                                                                   CommandHandler('C', barraC),
+                                                                   excluirAlerta,
+                                                                   CommandHandler('Z', voltar)],
+                                                        RESERVATORIOS: [CommandHandler('Z', voltar)]
+                                                        },
+                                                fallbacks=[CommandHandler('Z', voltar)]
+    ))
+    
+    # Adicionando uma opção no Menu
+    # Permite definir manipuladores (handlers) para diferentes tipos de mensagens recebidas pelo Bot.
+    '''application.add_handler(CommandHandler('0', barra0))'''
+
+    # O Filtro significa que o manipulador será acionado apenas quando o bot 
+    # receber mensagens de texto normais dos usuários e também mensagens que sejam comandos de bot.
+    '''application.add_handler(ConversationHandler(entry_points=[CommandHandler('1', barra1)],
+                                                states={SENSOR: [MessageHandler(filters.TEXT & filters.COMMAND, receber_sensor)],
+                                                        CONDICAO: [MessageHandler(filters.TEXT & filters.COMMAND, receber_condicao)],
+                                                        VALOR: [MessageHandler(filters.TEXT & filters.COMMAND, receber_valor)],},
+                                                fallbacks=[],
+                                                ))'''
+    
+    '''application.add_handler(CommandHandler('2', barra2))'''
+    
+    
+    '''application.add_handler(ConversationHandler(entry_points=[CommandHandler('3', barra3)],
+                                                states={EXCLUIR_ALERTA: [MessageHandler(filters.TEXT & filters.COMMAND, excluir_alerta)],},
+                                                fallbacks=[],
+                                                ))'''
     
     # Configuração do envio de alertas a cada 10 minutos
     # Permite agendar tarefas (jobs) para serem executadas em horários específicos ou periodicamente no bot.
