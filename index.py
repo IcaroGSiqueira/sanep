@@ -30,20 +30,10 @@ except subprocess.CalledProcessError as e:
 # Run main script
 print("Starting main script...")
 try:
-    subprocess.Popen(['python3', 'get-mqtt.py'])
+    subprocess.check_call(['pm2', 'start', 'pm2.config.js', '--interpreter=python3', '--watch'])
 except subprocess.CalledProcessError as e:
     print("Main script execution failed. Aborting.")
     print(e)
     exit(1)
-
-# Run alert bot scripts
-print("Starting bot script...")
-try:
-    subprocess.Popen(['python3', 'alert-bot.py'])
-except subprocess.CalledProcessError as e:
-    print("Bot script execution failed. Aborting.")
-    print(e)
-    exit(1)
-
 
 print("All scripts executed successfully.")
