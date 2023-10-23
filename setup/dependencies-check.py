@@ -2,13 +2,7 @@ import pkg_resources
 import subprocess
 
 # Define the required dependencies
-dependencies = [
-    'paho-mqtt',
-    'datetime',
-    'mysql-connector-python',
-    'pytz',
-    'python-dotenv'
-]
+dependencies = ["paho-mqtt", "datetime", "mysql-connector-python", "python-dotenv"]
 
 # Check if all dependencies are installed
 missing_dependencies = []
@@ -24,7 +18,7 @@ if missing_dependencies:
     for dependency in missing_dependencies:
         print(dependency)
         try:
-            subprocess.check_call(['pip3', 'install', dependency])
+            subprocess.check_call(["pip3", "install", dependency])
         except subprocess.CalledProcessError as e:
             print(f"Failed to install {dependency}. Error: {e}")
 else:

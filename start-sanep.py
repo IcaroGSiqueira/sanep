@@ -12,8 +12,6 @@ usr = os.getenv("MYSQL_USER")
 passw = os.getenv("MYSQL_PASSWORD")
 db = os.getenv("MYSQL_DB_NAME")
 
-db_conn = mysql.connector.connect(host=host, user=usr, password=passw, database=db)
-
 mqtt_topic = os.getenv("MQTT_TOPIC")
 mqtt_broker = os.getenv("MQTT_BROKER")
 mqtt_port = int(os.getenv("MQTT_PORT"))
@@ -29,12 +27,14 @@ def process_data(data):
     sensor_uuid = None
     sensor_data = None
 
+    message = None
+
     data_hora_formatada = None
 
     devices = []
 
     try:
-        data_type = data.get("type")
+        data_type = data.get("type", None)
 
         if data_type == "publication":
             sensor_uuid = data.get("uuid")
@@ -57,8 +57,12 @@ def process_data(data):
             data_hora_formatada = data_datetime[0] + " " + time_datetime[0]
 
         elif data_type == "log":
-            gateway_uuid = data.get("uuid_gateway")
-            raw_data = data.get("data")
+            gateway_uuid = data.get("gateway").get("uuid")
+            message = data.get("data")
+
+            data_datetime = data.get("gathered_at").split("T")
+            time_datetime = data_datetime[1].split(".")
+            data_hora_formatada = data_datetime[0] + " " + time_datetime[0]
 
         created_at = datetime.datetime.now()
 
@@ -72,6 +76,10 @@ def process_data(data):
             "sensor_data": {
                 "uuid": sensor_uuid,
                 "data": sensor_data,
+                "date_time": data_hora_formatada,
+            },
+            "log": {
+                "message": message,
                 "date_time": data_hora_formatada,
             },
             "created_at": created_at,
@@ -198,13 +206,49 @@ def insert_config_data(data, db_cursor):
             db_conn.commit()
 
 
+def insert_log_data(data, db_cursor):
+    # Verifica se o gateway existe
+    gateway_uuid = data.get("gateway").get("uuid")
+    db_cursor.execute("SELECT id FROM gateways WHERE id = %s", (gateway_uuid,))
+    gateway_result = db_cursor.fetchone()
+
+    if gateway_result is None:
+        # Gateway não existe, insere novo gateway
+        gateway_name = "temporary_name_" + gateway_uuid
+        created_at = data.get("created_at")
+
+        db_cursor.execute(
+            "INSERT INTO gateways (id, name, created_at, updated_at) "
+            "VALUES (%s, %s, %s, %s)",
+            (
+                gateway_uuid,
+                gateway_name,
+                created_at,
+                created_at,
+            ),
+        )
+        db_conn.commit()
+
+    message = data.get("log").get("message")
+    value_date = data.get("log").get("date_time")
+
+    # Insere os dados do log
+    db_cursor.execute(
+        "INSERT INTO logs (gateway_uuid, message, created_at) " "VALUES (%s, %s, %s)",
+        (gateway_uuid, message, value_date),
+    )
+    db_conn.commit()
+
+
 def insert_data_into_database(data):
     if data is None:
         return
-
-    db_cursor = db_conn.cursor()
-
     try:
+        db_conn = mysql.connector.connect(
+            host=host, user=usr, password=passw, database=db
+        )
+        db_cursor = db_conn.cursor()
+
         data_type = data.get("type")
 
         if data_type == "identification":
@@ -219,7 +263,9 @@ def insert_data_into_database(data):
     except Exception as err:
         print("Erro ao inserir os dados no banco de dados:", err)
 
-    db_cursor.close()
+    finally:
+        db_cursor.close()
+        db_conn.close()
 
 
 def on_connect(client, userdata, flags, rc):

@@ -10,6 +10,15 @@
         "type": "publication"
     },
     {
+        "tries": 1,
+        "data": "CLOCK: RTC not found",
+        "gathered_at": "2023-10-23T8:20:38.0Z",
+        "gateway": {
+            "uuid": "935f2bbb-8b86-4a41-a434-c7022b3ec865"
+        },
+        "type": "log"
+    },
+    {
         "project_name": "iWater",
         "type": "identification",
         "git": {
