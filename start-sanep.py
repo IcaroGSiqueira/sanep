@@ -234,7 +234,7 @@ def insert_log_data(data, db_cursor, db_conn):
 
     # Insere os dados do log
     db_cursor.execute(
-        "INSERT INTO logs (gateway_uuid, message, created_at) " "VALUES (%s, %s, %s)",
+        "INSERT INTO logs (gateway_id, message, created_at) " "VALUES (%s, %s, %s)",
         (gateway_uuid, message, value_date),
     )
     db_conn.commit()
