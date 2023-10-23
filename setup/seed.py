@@ -44,7 +44,7 @@ if result[0] > 0:
     print("Tanks already exist in the table. Skipping seeding.")
 else:
     # Tank names
-    tank_names = [f"Reservatório R{i}" for i in range(1, 17)]
+    tank_names = [f"Reservatório R{i}" for i in range(1, 25)]
 
     # Add tanks to the table
     for tank_name in tank_names:
