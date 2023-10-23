@@ -89,7 +89,7 @@ def process_data(data):
         return None
 
 
-def insert_pub_data(data, db_cursor):
+def insert_pub_data(data, db_cursor, db_conn):
     # Verifica se o sensor existe
     sensor_uuid = data.get("sensor_data").get("uuid")
     db_cursor.execute("SELECT id FROM sensors WHERE id = %s", (sensor_uuid,))
@@ -120,7 +120,7 @@ def insert_pub_data(data, db_cursor):
     db_conn.commit()
 
 
-def insert_config_data(data, db_cursor):
+def insert_config_data(data, db_cursor, db_conn):
     # Verifica se o gateway existe
     gateway_uuid = data.get("gateway").get("uuid")
     db_cursor.execute("SELECT id FROM gateways WHERE id = %s", (gateway_uuid,))
@@ -206,7 +206,7 @@ def insert_config_data(data, db_cursor):
             db_conn.commit()
 
 
-def insert_log_data(data, db_cursor):
+def insert_log_data(data, db_cursor, db_conn):
     # Verifica se o gateway existe
     gateway_uuid = data.get("gateway").get("uuid")
     db_cursor.execute("SELECT id FROM gateways WHERE id = %s", (gateway_uuid,))
@@ -252,13 +252,13 @@ def insert_data_into_database(data):
         data_type = data.get("type")
 
         if data_type == "identification":
-            insert_config_data(data, db_cursor)
+            insert_config_data(data, db_cursor, db_conn)
 
         elif data_type == "publication":
-            insert_pub_data(data, db_cursor)
+            insert_pub_data(data, db_cursor, db_conn)
 
         elif data_type == "log":
-            insert_log_data(data, db_cursor)
+            insert_log_data(data, db_cursor, db_conn)
 
     except Exception as err:
         print("Erro ao inserir os dados no banco de dados:", err)
