@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'sanep-main',
+      name: 'iwater-main',
       script: 'start-sanep.py',
       interpreter: 'python3',
       watch: true,
@@ -9,7 +9,7 @@ module.exports = {
       max_restarts: 3,
     },
     {
-      name: 'sanep-alert-bot',
+      name: 'iwater-alert-bot',
       script: 'alert-bot.py',
       interpreter: 'python3',
       watch: true,
